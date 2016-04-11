@@ -36,9 +36,10 @@ public:
 
   bool frameStarted(const FrameEvent &evt)
   {
-	  static float professorVelocity = 300.0f;
+	  static float professorVelocity = 500.0f;
 	  static float professorDegree = 0.0f;
-	  static float fishrotateVelocity = 200.0f;
+	  static float fishrotateVelocity = 500.0f;
+	  static float locationlimit = 250.0f;
 	  static bool doprofessorRun = TRUE;
 	  static bool doprofessorRotate = FALSE;
 	  	 
@@ -46,11 +47,11 @@ public:
 		  mProfessorNode->translate(0, 0, professorVelocity * evt.timeSinceLastFrame);
 		  mEmptyNode->setPosition(mProfessorNode->getPosition());
 	  }
-	  if ((mProfessorNode->getPosition().z < -250.0f || mProfessorNode->getPosition().z > 250.0f)){
+	  if ((mProfessorNode->getPosition().z < locationlimit * (-1) || mProfessorNode->getPosition().z > locationlimit)){
 		  if (professorVelocity > 0)
-			  mProfessorNode->setPosition(mProfessorNode->getPosition().x, mProfessorNode->getPosition().y, 250.0f);
+			  mProfessorNode->setPosition(mProfessorNode->getPosition().x, mProfessorNode->getPosition().y, locationlimit);
 		  else if (professorVelocity < 0)
-			  mProfessorNode->setPosition(mProfessorNode->getPosition().x, mProfessorNode->getPosition().y, -250.0f);
+			  mProfessorNode->setPosition(mProfessorNode->getPosition().x, mProfessorNode->getPosition().y, locationlimit * (-1));
 
 		  doprofessorRun = FALSE;
 		  doprofessorRotate = TRUE;
@@ -149,11 +150,11 @@ public:
 
 
     Entity* entity1 = mSceneMgr->createEntity("Professor", "DustinBody.mesh");
-    SceneNode* node1 = mSceneMgr->getRootSceneNode()->createChildSceneNode("Professor", Vector3(0.0f, 0.0f, -250.0f));
+    SceneNode* node1 = mSceneMgr->getRootSceneNode()->createChildSceneNode("Professor", Vector3(0.0f, 0.0f, 0.0f));
     node1->attachObject(entity1);
 
 	Entity* entity2 = mSceneMgr->createEntity("Empty", "fish.mesh");
-	SceneNode* node2 = mSceneMgr->getRootSceneNode()->createChildSceneNode("Empty", Vector3(0.0f, 0.0f, -250.0f));
+	SceneNode* node2 = mSceneMgr->getRootSceneNode()->createChildSceneNode("Empty", Vector3(0.0f, 0.0f, 0.0f));
 
     Entity* entity3 = mSceneMgr->createEntity("Fish", "fish.mesh");
     SceneNode* node3 = node2->createChildSceneNode("Fish", Vector3(100.0f, 0.0f, 0.0f));
