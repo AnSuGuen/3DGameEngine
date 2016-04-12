@@ -8,8 +8,8 @@
 
 using namespace Ogre;
 
-#define RUNNING		1
-#define ROTATING	2
+#define RUNNING  1
+#define ROTATING 2
 
 class ESCListener : public FrameListener {
 	OIS::Keyboard *mKeyboard;
@@ -27,14 +27,14 @@ public:
 class MainListener : public FrameListener {
   OIS::Keyboard *mKeyboard;
   Root* mRoot;
-  SceneNode *mProfessorNode, *mFishNode, *mEmptyNode;
+  SceneNode *mProfessorNode, *mFishNode, *mFishRotateCenterNode;
 
 public:
   MainListener(Root* root, OIS::Keyboard *keyboard) : mKeyboard(keyboard), mRoot(root) 
   {
     mProfessorNode = mRoot->getSceneManager("main")->getSceneNode("Professor");
     mFishNode = mRoot->getSceneManager("main")->getSceneNode("Fish");
-	mEmptyNode = mRoot->getSceneManager("main")->getSceneNode("Empty");
+	mFishRotateCenterNode = mRoot->getSceneManager("main")->getSceneNode("Empty");
   }
 
   bool frameStarted(const FrameEvent &evt)
@@ -48,9 +48,8 @@ public:
 	  if (RUNNING == professorState)
 	  {
 		  mProfessorNode->translate(0, 0, professorVelocity * evt.timeSinceLastFrame);
-		  mEmptyNode->setPosition(mProfessorNode->getPosition());
 	  }
-	  if (mProfessorNode->getPosition().z < -250.0f || mProfessorNode->getPosition().z > 250.0f)
+	  if (mProfessorNode->getPosition().z < -250.0f || 250.0f < mProfessorNode->getPosition().z)
 	  {
 		  if (professorVelocity > 0)
 			  mProfessorNode->setPosition(mProfessorNode->getPosition().x, mProfessorNode->getPosition().y, 250.0f);
@@ -73,7 +72,7 @@ public:
 			  professorAccumulateDegree += professorRotateVelocity * evt.timeSinceLastFrame;
 		  }
 	  }
-	  mEmptyNode->yaw(Degree(fishRotateVelocity) * evt.timeSinceLastFrame * (-1));
+	  mFishRotateCenterNode->yaw(Degree(fishRotateVelocity) * evt.timeSinceLastFrame * (-1));
 	  
 	  return true;
   }
@@ -159,7 +158,8 @@ public:
     node1->attachObject(entity1);
 
 	Entity* entity2 = mSceneMgr->createEntity("Empty", "fish.mesh");
-	SceneNode* node2 = mSceneMgr->getRootSceneNode()->createChildSceneNode("Empty", Vector3(0.0f, 0.0f, 0.0f));
+	SceneNode* node2 = node1->createChildSceneNode("Empty", Vector3(0.0f, 0.0f, 0.0f));
+	node2->setInheritOrientation(false);
 
     Entity* entity3 = mSceneMgr->createEntity("Fish", "fish.mesh");
     SceneNode* node3 = node2->createChildSceneNode("Fish", Vector3(100.0f, 0.0f, 0.0f));
