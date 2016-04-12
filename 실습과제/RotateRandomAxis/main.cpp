@@ -8,6 +8,9 @@
 
 using namespace Ogre;
 
+#define RUNNING		1
+#define ROTATING	2
+
 class ESCListener : public FrameListener {
 	OIS::Keyboard *mKeyboard;
 
@@ -37,38 +40,40 @@ public:
   bool frameStarted(const FrameEvent &evt)
   {
 	  static float professorVelocity = 500.0f;
-	  static float professorDegree = 0.0f;
-	  static float fishrotateVelocity = 500.0f;
-	  static float locationlimit = 250.0f;
-	  static bool doprofessorRun = TRUE;
-	  static bool doprofessorRotate = FALSE;
+	  static float professorRotateVelocity = 500.0f;
+	  static float professorAccumulateDegree = 0.0f;
+	  static float fishRotateVelocity = 400.0f;
+	  static int professorState = RUNNING;
 	  	 
-	  if (TRUE == doprofessorRun){
+	  if (RUNNING == professorState)
+	  {
 		  mProfessorNode->translate(0, 0, professorVelocity * evt.timeSinceLastFrame);
 		  mEmptyNode->setPosition(mProfessorNode->getPosition());
 	  }
-	  if ((mProfessorNode->getPosition().z < locationlimit * (-1) || mProfessorNode->getPosition().z > locationlimit)){
+	  if (mProfessorNode->getPosition().z < -250.0f || mProfessorNode->getPosition().z > 250.0f)
+	  {
 		  if (professorVelocity > 0)
-			  mProfessorNode->setPosition(mProfessorNode->getPosition().x, mProfessorNode->getPosition().y, locationlimit);
+			  mProfessorNode->setPosition(mProfessorNode->getPosition().x, mProfessorNode->getPosition().y, 250.0f);
 		  else if (professorVelocity < 0)
-			  mProfessorNode->setPosition(mProfessorNode->getPosition().x, mProfessorNode->getPosition().y, locationlimit * (-1));
+			  mProfessorNode->setPosition(mProfessorNode->getPosition().x, mProfessorNode->getPosition().y, -250.0f);
 
-		  doprofessorRun = FALSE;
-		  doprofessorRotate = TRUE;
+		  professorState = ROTATING;
 	  }
-	  if (TRUE == doprofessorRotate){
-		  if (180.0f <= professorDegree){
+	  if (ROTATING == professorState)
+	  {
+		  if (180.0f <= professorAccumulateDegree)
+		  {
 			  professorVelocity *= -1;
-			  professorDegree = 0.0f;
-			  doprofessorRun = TRUE;
-			  doprofessorRotate = FALSE;			  
+			  professorAccumulateDegree = 0.0f;
+			  professorState = RUNNING;
 		  }
-		  else{
-			  mProfessorNode->yaw(Degree(1.0f));
-			  professorDegree += 1.0f;
+		  else // 180.0f > professorDegree
+		  {
+			  mProfessorNode->yaw(Degree(professorRotateVelocity) * evt.timeSinceLastFrame);
+			  professorAccumulateDegree += professorRotateVelocity * evt.timeSinceLastFrame;
 		  }
 	  }
-	  mEmptyNode->yaw(Degree(fishrotateVelocity) * evt.timeSinceLastFrame * (-1));
+	  mEmptyNode->yaw(Degree(fishRotateVelocity) * evt.timeSinceLastFrame * (-1));
 	  
 	  return true;
   }
